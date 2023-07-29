@@ -1,0 +1,628 @@
+openapi: "3.0.0"
+info:
+  title: Swagger VK Test 
+  description: |-
+    API для социально сети 
+  version: 1.0.0
+  
+servers:
+  - url: https://localhost:8080/api/v1
+    description: "Локальный сервер"
+ 
+tags:
+  - name: friends
+    description: добавление и удаление друзей
+  - name: get friends
+    description: просмотр друзей пользователя
+  - name: show profile
+    description: просмотр анкеты пользователя
+  - name: send post
+    description: публикация поста в ленту
+  - name: load media
+    description: загрузка медиа файлов для поста
+  - name: show post feed
+    description: просмотр ленты постов
+  - name: show dialogs and chats
+    description: просмотр диалогов и чатов пользователя
+  - name: send message
+    description: отправка и чтение сообщений в диалогах и чатах
+
+paths:
+  /user/posts:
+      get:
+        tags:
+          - show post feed
+        summary: Показать домашнюю ленту пользователя
+        description: Показать домашнюю ленту пользователя
+        parameters:
+          - in: header
+            name: auth
+            schema:
+              type: string
+            example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+            required: true
+          - in: query
+            name: page_number
+            schema:
+              type: integer
+            required: true
+          - in: query
+            name: limit
+            schema:
+              type: integer
+            required: true
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Post'
+          
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+      post: 
+        tags:
+          - load media
+        summary: Загрузить медиа файлы для поста
+        description: ''
+        parameters:
+          - in: header
+            name: auth
+            example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+            schema:
+              type: string
+            required: true
+          - name: postId
+            in: query
+            description: ID поста
+            required: true
+            schema:
+              type: integer
+              format: int64
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaFile'
+        responses:
+          '200':
+            description: OK
+  /user/dialogs:
+      get:
+        tags:
+          - send message
+        summary: Читать сообщений в диалоге
+        description: Читать сообщений в диалоге
+        parameters:
+          - in: header
+            name: auth
+            example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+            schema:
+              type: string
+            required: true
+          - in: query
+            name: dialog_id
+            schema:
+              type: integer
+              format: int64            
+            required: true
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Message'
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+      post:
+        tags:
+          - send message
+        summary: Отправить сообщение в диалог
+        description: ''
+        parameters:
+          - in: header
+            name: auth
+            example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+            schema:
+              type: string
+            required: true
+          - name: dialog_id
+            in: query
+            description: ID диалога
+            required: true
+            schema:
+              type: integer
+              format: int64
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        responses:
+          '200':
+            description: OK
+  /user/chats:
+      get:
+        tags:
+          - send message
+        summary: Читать сообщений в чатах
+        description: Читать сообщений в чатах
+        parameters:
+          - in: header
+            name: auth
+            example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+            schema:
+              type: string
+            required: true
+          - in: query
+            name: dialog_id
+            schema:
+              type: integer
+              format: int64            
+            required: true
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Message'
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+                    
+      post:
+        tags:
+          - send message
+        summary: Отправить сообщение в чат
+        description: ''
+        parameters:
+          - in: header
+            name: auth
+            example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+            schema:
+              type: string
+            required: true
+          - name: dialog_id
+            in: query
+            description: ID диалога
+            required: true
+            schema:
+              type: integer
+              format: int64
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        responses:
+          '200':
+            description: OK
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+                    
+  /user/friends:
+    delete:
+      tags:
+        - friends
+      summary: Удаление друзей у пользователя
+      description: Удаление друзей у пользователя
+      operationId: deleteUser
+      parameters:  
+        - in: header
+          name: auth
+          schema:
+            type: string
+          example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+          required: true
+        - in: query
+          name: friend_ids
+          description: ID пользователей, которых нужно удалить из списка друзей
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+            minItems: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        'default':
+          description: 'Ошибка'
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+                  
+    post:
+      tags:
+        - friends
+      summary: Добавить друзей пользователю
+      description: Добавить друзей пользователю
+      parameters:   
+        - in: header
+          name: auth
+          schema:
+            type: string
+          example: d4b80646-6223-4120-a96f-9b3c79e1e6e7
+          required: true
+        - in: query
+          name: friend_ids
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+            minItems: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        'default':
+          description: 'Ошибка'
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+                  
+  /user/{userId}/friends:
+    get:
+      tags:
+        - get friends
+      summary: Показать друзей пользователя
+      description: Показать друзей пользователя
+      parameters:   
+        - in: path
+          name: userId
+          description: ID пользователя,которому нужно добавить друзей
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        'default':
+          description: 'Ошибка'
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+                    
+  /user/{userId}/profile:  
+      get:
+        tags:
+          - show profile
+        summary: Показать анкету пользователя
+        description: Показать анкету пользователя
+        parameters:   
+          - in: path
+            name: userId
+            description: ID пользователя, анкету которого нужно показать
+            required: true
+            schema:
+              type: integer
+              format: int64
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: object
+                  items:
+                    $ref: '#/components/schemas/User'
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+      post:
+        tags:
+          - send post
+        parameters:
+          - name: userId
+            in: path
+            description: ID of the order that needs to be deleted
+            required: true
+            schema:
+              type: integer
+              format: int64
+        requestBody:
+          description: Created post object
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePost'
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Post'          
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+                    
+  /user/{userId}/posts:    
+      get:
+        tags:
+          - show post feed
+        summary: Показать ленту пользователя
+        description: Показать ленту пользователя
+        parameters:
+          - in: path
+            name: userId
+            schema:
+              type: string
+            required: true
+          - in: query
+            name: page_number
+            schema:
+              type: integer
+            required: true
+          - in: query
+            name: limit
+            schema:
+              type: integer
+            required: true
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Post'
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+                    
+  /user/{userId}/dialogs:
+      get:
+        tags:
+          - show dialogs and chats
+        summary: Показать диалоги пользователя
+        description: Показать диалоги пользователя
+        parameters:
+          - in: path
+            name: userId
+            schema:
+              type: string
+            required: true
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Dialog'
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+          
+  /usr/{userId}/chats:
+      get:
+        tags:
+          - show dialogs and chats
+        summary: Показать чаты пользователя
+        description: Показать чаты пользователя
+        parameters:
+          - in: path
+            name: userId
+            schema:
+              type: string
+            required: true
+        responses:
+          '200':
+            description: OK
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Chat'
+          'default':
+            description: 'Ошибка'
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+                
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: theUser
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        phone:
+          type: string
+          example: '12345'
+        friends:
+          type: array
+          items: {
+            type: integer,
+            format: int64,
+          }
+          example: [1, 2, 3]
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 12345
+        UserId:
+          type: integer
+          format: int64
+          example: 10
+        header:
+          type: string
+          example: "Заголовок поста"
+        body:
+          type: string
+          example: "Тело поста"
+        date:
+          type: string
+          format: date-time
+        views:
+          type: integer
+          format: int64
+          example: 100500
+        complete:
+          type: boolean
+      xml:
+        name: order
+    CreatePost:
+      type: object
+      properties:
+        header:
+          type: string
+          example: "Заголовок поста"
+        body:
+          type: string
+          example: "Тело поста"
+    MediaFile:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Название файла"
+        data:
+          type: string
+          format: binary
+    Message:  
+      type: object
+      properties:
+        text:
+          type: string
+          example: "Текст сообщения"
+        date:
+          type: string
+          format: date-time
+        UserId:
+          type: integer
+          format: int64
+          example: 10
+    Dialog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 111111
+        name:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        user_1:
+          $ref: '#/components/schemas/User'
+        user_2:
+          $ref: '#/components/schemas/User'
+    Chat:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    Error:
+      type: object
+      required: 
+        - message
+        - code
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+        
+      
+
+
